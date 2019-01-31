@@ -1,0 +1,38 @@
+SELECT c.contactLastName, c.contactFirstName, COUNT(o.orderNumber)
+FROM customers c
+LEFT JOIN orders o USING (customerNumber)
+GROUP BY (customerNumber)
+HAVING COUNT(o.orderNumber) BETWEEN 5 AND 10;
+
+SELECT c.contactLastName, c.contactFirstName, SUM(p.amount), p.paymentdate 
+FROM  customers c 
+JOIN payments p USING (customerNumber) 
+WHERE (p.paymentDate >= '2004-01-01') 
+GROUP BY (c.customerNumber);
+
+SELECT DISTINCT c.customerName FROM customers c 
+JOIN orders o USING (customerNumber)
+JOIN orderdetails USING (orderNumber)
+JOIN products p USING (productCode)
+WHERE p.productLine IN ('Motorcycles','Trains');
+
+SELECT productLine, SUM(quantityOrdered) FROM orderdetails
+JOIN orders USING (orderNumber)
+JOIN products USING (productCode)
+WHERE status='Shipped'
+GROUP BY productLine;
+
+SELECT lastName, firstName, SUM(quantityOrdered*priceEach) Revenue
+FROM employees e
+JOIN customers c on e.employeeNumber= c.salesRepEmployeeNumber
+JOIN orders USING (customerNumber)
+JOIN orderdetails od USING (orderNumber)
+GROUP BY e.employeeNumber
+having Revenue > (
+SELECT AVG(revenue) from (
+SELECT lastName, firstName, SUM(quantityOrdered*priceEach) Revenue
+FROM employees e
+JOIN customers c on e.employeeNumber= c.salesRepEmployeeNumber
+JOIN orders USING (customerNumber)
+JOIN orderdetails od USING (orderNumber)
+GROUP BY e.employeeNumber) as T);
