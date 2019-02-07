@@ -1,0 +1,53 @@
+DROP DATABASE IF EXISTS CMS;
+create database CMS;
+use CMS;
+
+create table department( 
+id int PRIMARY KEY AUTO_INCREMENT,
+name varchar(30) NOT NULL
+);
+
+create table faculty(
+id int PRIMARY KEY AUTO_INCREMENT,
+firstname varchar(30) NOT NULL,
+lastname varchar(50) NOT NULL,
+deptId int(20) NOT NULL, 
+CONSTRAINT facdep FOREIGN KEY (deptId) REFERENCES department(id)
+);
+
+create table student(
+id int PRIMARY KEY AUTO_INCREMENT,
+firstname varchar(30) NOT NULL,
+lastname varchar(50) NOT NULL,
+street varchar(50) NOT NULL,
+streetDetail varchar(30),
+city varchar(30) NOT NULL,
+state varchar(50) NOT NULL,
+postalCode char(5) NOT NULL,
+majorId int NOT NULL,
+CONSTRAINT studep FOREIGN KEY (majorId) REFERENCES department(id)
+);
+
+create table course(
+id int PRIMARY KEY AUTO_INCREMENT,
+name varchar(50) NOT NULL,
+deptId int NOT NULL,
+CONSTRAINT coudep FOREIGN KEY (deptId) REFERENCES department(id)
+);
+
+create table studentCourse(
+studentId int PRIMARY KEY,
+courseId int NOT NULL,
+progress int NOT NULL,
+startDate date,
+CONSTRAINT stustu FOREIGN KEY (studentId) REFERENCES student(id),
+CONSTRAINT stucou FOREIGN KEY (courseId) REFERENCES course(id)
+);
+
+create table facultyCourse(
+facultyId int NOT NULL,
+courseId int NOT NULL,
+CONSTRAINT facfac FOREIGN KEY (facultyId) REFERENCES faculty(id),
+CONSTRAINT faccou FOREIGN KEY (courseId) REFERENCES course(id),
+PRIMARY KEY(facultyId,courseId)
+);
