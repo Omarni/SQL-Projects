@@ -1,0 +1,92 @@
+SELECT d.name 'Department Name',
+COUNT(course.id)'# Courses'
+FROM course RIGHT JOIN department d ON deptId = d.id
+GROUP BY deptId 
+ORDER BY COUNT(course.id) ASC;
+
+SELECT c.name 'Course Name',
+COUNT(sc.studentId) '# of students'
+FROM course c JOIN studentcourse sc ON c.id= sc.courseid
+GROUP BY c.id
+ORDER BY COUNT(sc.studentId) DESC, (c.name) ASC;
+
+SELECT name FROM course 
+LEFT JOIN facultycourse ON id = courseid
+GROUP BY id
+HAVING COUNT(facultyId) = 0
+ORDER BY name ASC;
+
+SELECT name, 
+COUNT(studentId) FROM course LEFT JOIN studentcourse ON id = courseId
+GROUP BY id
+HAVING NAME IN (
+	SELECT name FROM course LEFT JOIN facultycourse ON id = courseid
+	GROUP BY id
+	HAVING COUNT(facultyId) = 0
+	ORDER BY name ASC)
+ORDER BY 2 DESC, 1 ASC;
+
+SELECT COUNT(DISTINCT(studentId)) 'Students', year(startDate) 'Year' 
+FROM studentcourse 
+GROUP BY year(startDate);
+
+SELECT startDate, COUNT(studentId) '# of students' 
+FROM studentcourse 
+GROUP BY startDate 
+HAVING month(startDate)= '08';
+
+SELECT firstname 'First Name', lastname 'Last Name', COUNT(courseId) 'Number of courses' 
+FROM student s JOIN studentcourse ON s.id = studentId 
+JOIN course c ON courseId = c.id
+JOIN department d ON deptid = d.id
+WHERE majorId= d.id
+GROUP BY s.id
+ORDER BY 3 ASC, 2 ASC;
+
+SELECT firstname, lastname, ROUND (AVG(progress),1) 'Average Progress'
+FROM student JOIN studentcourse on studentId = id 
+GROUP BY(studentId) 
+HAVING AVG(progress) < 50
+ORDER BY AVG(progress) DESC;
+
+SELECT MAX(AVGP) FROM
+(SELECT name, AVG(progress) AS AVGP 
+FROM course JOIN studentcourse ON courseId = id 
+	GROUP BY(courseId)
+	ORDER BY AVG(progress) DESC) AS AVGG;
+    
+SELECT firstname, lastname, AVG(progress) 'Avg. Progress'
+FROM faculty f JOIN facultycourse ON f.id = facultyId
+JOIN course c ON c.id = facultyId
+JOIN studentcourse sc ON sc.courseId = c.id
+GROUP BY facultyId;
+
+SELECT firstname, lastname, AVG(progress) 'Avg. Progress'
+FROM faculty f JOIN facultycourse ON f.id = facultyId
+JOIN course c ON c.id = facultyId
+JOIN studentcourse sc ON sc.courseId = c.id
+GROUP BY facultyId
+HAVING AVG(progress) >= (
+	SELECT MAX(AVGP)*.9 FROM
+		(SELECT name, AVG(progress) AS AVGP 
+        FROM course JOIN studentcourse ON courseId = id 
+		GROUP BY(courseId)
+		ORDER BY AVG(progress) DESC) AS AVGG);
+        
+SELECT firstname, lastname,
+CASE
+	WHEN MIN(progress)< 40 THEN 'F'
+	WHEN MIN(progress)< 50 THEN 'D'
+	WHEN MIN(progress)< 60 THEN 'C'
+	WHEN MIN(progress)< 70 THEN 'B'
+	WHEN MIN(progress)>= 70 THEN 'A'
+END AS 'Min Grade',
+CASE
+	WHEN MAX(progress)< 40 THEN 'F'
+	WHEN MAX(progress)< 50 THEN 'D'
+	WHEN MAX(progress)< 60 THEN 'C'
+	WHEN MAX(progress)< 70 THEN 'B'
+	WHEN MAX(progress)>= 70 THEN 'A'
+END AS 'Max Grade'
+FROM student JOIN studentcourse on id = studentId
+GROUP BY studentId;
